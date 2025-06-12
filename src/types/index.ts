@@ -7,6 +7,7 @@ export interface Food {
   safetyTemp?: number;
   baseTime: number; // base time in seconds
   image?: string; // High-quality food image URL
+  isPremium?: boolean; // Premium food items
 }
 
 export interface Texture {
@@ -18,6 +19,7 @@ export interface Texture {
   tips: string[];
   beforeImage?: string; // Visual reference for texture
   afterImage?: string; // Expected result image
+  isPremium?: boolean; // Premium texture options
 }
 
 export interface CookingMethod {
@@ -26,6 +28,7 @@ export interface CookingMethod {
   multiplier: number;
   description: string;
   icon?: string;
+  isPremium?: boolean; // Premium cooking methods
 }
 
 export interface CookingSession {
@@ -56,6 +59,9 @@ export interface AppSettings {
   voiceEnabled: boolean;
   hasSeenOnboarding: boolean;
   favoriteSettings: FavoriteSetting[];
+  isPremium?: boolean;
+  premiumExpiryDate?: number;
+  theme?: 'default' | 'chef' | 'modern' | 'minimal';
 }
 
 export interface FavoriteSetting {
@@ -87,4 +93,33 @@ export interface OnboardingStep {
   position?: 'top' | 'bottom' | 'left' | 'right';
 }
 
-export type Screen = 'welcome' | 'onboarding' | 'food-selection' | 'texture-selection' | 'cooking-details' | 'timer' | 'multi-timer' | 'success' | 'favorites' | 'settings';
+export interface PremiumFeature {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'cooking' | 'timers' | 'customization' | 'support';
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  period: 'monthly' | 'annual';
+  features: string[];
+  popular?: boolean;
+  savings?: string;
+}
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  profilePicture?: string;
+  subscriptionStatus: 'free' | 'premium';
+  subscriptionPlan?: string;
+  subscriptionExpiry?: number;
+  joinDate: number;
+}
+
+export type Screen = 'welcome' | 'onboarding' | 'food-selection' | 'texture-selection' | 'cooking-details' | 'timer' | 'multi-timer' | 'success' | 'favorites' | 'settings' | 'premium-benefits' | 'upgrade-flow' | 'account' | 'billing' | 'support';

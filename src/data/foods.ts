@@ -1,6 +1,7 @@
 import { Food } from '../types';
 
 export const foods: Food[] = [
+  // Free foods
   {
     id: 'eggs',
     name: 'Eggs',
@@ -76,5 +77,70 @@ export const foods: Food[] = [
     safetyTemp: 145,
     baseTime: 900, // 15 minutes base
     image: 'https://images.pexels.com/photos/361184/asparagus-steak-veal-steak-veal-361184.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  
+  // Premium foods
+  {
+    id: 'lobster',
+    name: 'Lobster',
+    icon: '🦞',
+    category: 'seafood',
+    description: 'Luxurious and delicate',
+    safetyTemp: 145,
+    baseTime: 480, // 8 minutes base
+    isPremium: true,
+    image: 'https://images.pexels.com/photos/725991/pexels-photo-725991.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  {
+    id: 'duck',
+    name: 'Duck',
+    icon: '🦆',
+    category: 'protein',
+    description: 'Rich and flavorful',
+    safetyTemp: 165,
+    baseTime: 2400, // 40 minutes base
+    isPremium: true,
+    image: 'https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  {
+    id: 'lamb',
+    name: 'Lamb',
+    icon: '🐑',
+    category: 'protein',
+    description: 'Tender and aromatic',
+    safetyTemp: 145,
+    baseTime: 1800, // 30 minutes base
+    isPremium: true,
+    image: 'https://images.pexels.com/photos/361184/asparagus-steak-veal-steak-veal-361184.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  {
+    id: 'quinoa',
+    name: 'Quinoa',
+    icon: '🌾',
+    category: 'grain',
+    description: 'Superfood grain',
+    baseTime: 900, // 15 minutes base
+    isPremium: true,
+    image: 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  {
+    id: 'artichoke',
+    name: 'Artichoke',
+    icon: '🌿',
+    category: 'vegetable',
+    description: 'Gourmet vegetable',
+    baseTime: 1800, // 30 minutes base
+    isPremium: true,
+    image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800',
+  },
+  {
+    id: 'risotto',
+    name: 'Risotto',
+    icon: '🍚',
+    category: 'grain',
+    description: 'Creamy Italian rice',
+    baseTime: 1200, // 20 minutes base
+    isPremium: true,
+    image: 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
 ];

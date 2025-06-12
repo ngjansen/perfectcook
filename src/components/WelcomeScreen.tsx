@@ -1,15 +1,19 @@
 import React from 'react';
-import { ChefHat, Clock, Thermometer, CheckCircle, Star, Settings, Timer, Zap } from 'lucide-react';
+import { ChefHat, Clock, Thermometer, CheckCircle, Star, Settings, Timer, Zap, Crown, User } from 'lucide-react';
 import { TemperatureToggle } from './TemperatureToggle';
+import { PremiumBadge } from './PremiumBadge';
 
 interface WelcomeScreenProps {
   onStart: () => void;
   onFavorites: () => void;
   onSettings: () => void;
   onMultiTimer: () => void;
+  onAccount: () => void;
+  onPremiumBenefits: () => void;
   favoriteCount: number;
   temperatureUnit?: 'celsius' | 'fahrenheit';
   onTemperatureToggle?: (unit: 'celsius' | 'fahrenheit') => void;
+  isPremium?: boolean;
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ 
@@ -17,9 +21,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onFavorites, 
   onSettings, 
   onMultiTimer,
+  onAccount,
+  onPremiumBenefits,
   favoriteCount,
   temperatureUnit = 'fahrenheit',
-  onTemperatureToggle
+  onTemperatureToggle,
+  isPremium = false
 }) => {
   const features = [
     {
@@ -61,10 +68,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           
           <button
             onClick={onMultiTimer}
-            className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-primary-100 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-colors"
+            className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-primary-100 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-colors relative"
           >
             <Timer className="w-4 h-4 text-primary-500" />
             <span className="text-sm font-medium text-warm-700 dark:text-gray-300">Multi</span>
+            {!isPremium && <PremiumBadge variant="crown" size="small" className="absolute -top-1 -right-1" />}
           </button>
         </div>
         
@@ -80,6 +88,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               />
             </div>
           )}
+          
+          <button
+            onClick={onAccount}
+            className="p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm border border-primary-100 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-colors relative"
+          >
+            <User className="w-5 h-5 text-warm-600 dark:text-gray-400" />
+            {isPremium && <PremiumBadge variant="crown" size="small" className="absolute -top-1 -right-1" />}
+          </button>
           
           <button
             onClick={onSettings}
@@ -136,21 +152,44 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
       {/* Bottom feature highlight */}
       <div className="p-4">
-        <div className="bg-accent-100 dark:bg-gray-800 rounded-2xl p-4 border border-accent-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-white" />
+        {!isPremium ? (
+          <button
+            onClick={onPremiumBenefits}
+            className="w-full bg-gradient-to-r from-accent-100 to-primary-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-4 border border-accent-200 dark:border-gray-600 hover:from-accent-200 hover:to-primary-200 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 transform hover:scale-[1.01]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-accent-400 to-accent-600 rounded-full flex items-center justify-center">
+                <Crown className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-warm-800 dark:text-white text-sm flex items-center gap-2">
+                  Upgrade to Premium
+                  <PremiumBadge variant="crown" size="small" />
+                </h3>
+                <p className="text-xs text-warm-600 dark:text-gray-400">
+                  Unlock 100+ foods, AI recognition, and unlimited features
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-warm-800 dark:text-white text-sm">
-                Scientifically Validated
-              </h3>
-              <p className="text-xs text-warm-600 dark:text-gray-400">
-                Based on USDA guidelines and culinary science research
-              </p>
+          </button>
+        ) : (
+          <div className="bg-gradient-to-r from-accent-100 to-primary-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-4 border border-accent-200 dark:border-gray-600">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-accent-400 to-accent-600 rounded-full flex items-center justify-center">
+                <Crown className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-warm-800 dark:text-white text-sm flex items-center gap-2">
+                  Premium Active
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                </h3>
+                <p className="text-xs text-warm-600 dark:text-gray-400">
+                  Enjoy unlimited access to all premium features
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
