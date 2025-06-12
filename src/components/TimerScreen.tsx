@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Play, Pause, RotateCcw, Volume2, AlertTriangle, Mic, Plus } from 'lucide-react';
 import { Navigation } from './Navigation';
 import { VoiceControl } from './VoiceControl';
+import { DisclaimerBanner } from './DisclaimerBanner';
+import { DisclaimerModal } from './DisclaimerModal';
 import { useTimer } from '../hooks/useTimer';
 import { useNotifications } from '../hooks/useNotifications';
 import { useVoiceCommands } from '../hooks/useVoiceCommands';
@@ -19,6 +21,7 @@ interface TimerScreenProps {
   temperatureUnit: 'celsius' | 'fahrenheit';
   onTemperatureToggle: (unit: 'celsius' | 'fahrenheit') => void;
   voiceEnabled: boolean;
+  isPremium: boolean;
 }
 
 export const TimerScreen: React.FC<TimerScreenProps> = ({ 
@@ -29,12 +32,14 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({
   onComplete,
   temperatureUnit,
   onTemperatureToggle,
-  voiceEnabled
+  voiceEnabled,
+  isPremium
 }) => {
   const timer = useTimer(totalTime);
   const { showNotification } = useNotifications();
   const { triggerTimerStart, triggerTimerComplete, triggerWarning } = useHapticFeedback();
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   useEffect(() => {
     timer.setTime(totalTime);
@@ -348,7 +353,19 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({
             </p>
           </div>
         )}
+
+        {/* Disclaimer Banner */}
+        <DisclaimerBanner
+          onViewDisclaimer={() => setShowDisclaimer(true)}
+          variant="compact"
+          className="mt-4 max-w-md w-full"
+        />
       </div>
+
+      <DisclaimerModal
+        isOpen={showDisclaimer}
+        onClose={() => setShowDisclaimer(false)}
+      />
     </div>
   );
 };

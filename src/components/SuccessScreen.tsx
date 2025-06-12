@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle, Star, RotateCcw, Home, Heart, Share2 } from 'lucide-react';
+import { DisclaimerBanner } from './DisclaimerBanner';
+import { DisclaimerModal } from './DisclaimerModal';
 import { Food, Texture } from '../types';
 
 interface SuccessScreenProps {
@@ -8,6 +10,8 @@ interface SuccessScreenProps {
   onRestart: () => void;
   onHome: () => void;
   onSaveFavorite: (rating: number, feedback: string) => void;
+  isPremium: boolean;
+  onPremiumFeatureClick: (name: string, description: string) => void;
 }
 
 export const SuccessScreen: React.FC<SuccessScreenProps> = ({ 
@@ -15,11 +19,14 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
   texture, 
   onRestart, 
   onHome,
-  onSaveFavorite
+  onSaveFavorite,
+  isPremium,
+  onPremiumFeatureClick
 }) => {
   const [rating, setRating] = useState<number>(0);
   const [feedback, setFeedback] = useState<string>('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const handleRatingSubmit = () => {
     onSaveFavorite(rating, feedback);
@@ -177,15 +184,32 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
       )}
 
       {/* Premium Upsell */}
-      <div className="mt-8 p-4 bg-accent-50 dark:bg-gray-800 rounded-xl border border-accent-200 dark:border-gray-700 max-w-md w-full">
-        <h3 className="font-semibold text-warm-800 dark:text-white mb-2">🚀 Upgrade to Premium</h3>
-        <p className="text-sm text-warm-600 dark:text-gray-400 mb-3">
-          Get access to 100+ foods, AI photo recognition, batch cooking coordination, and advanced customization!
-        </p>
-        <button className="w-full bg-accent-500 hover:bg-accent-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm">
-          Learn More
-        </button>
-      </div>
+      {!isPremium && (
+        <div className="mt-8 p-4 bg-accent-50 dark:bg-gray-800 rounded-xl border border-accent-200 dark:border-gray-700 max-w-md w-full">
+          <h3 className="font-semibold text-warm-800 dark:text-white mb-2">🚀 Upgrade to Premium</h3>
+          <p className="text-sm text-warm-600 dark:text-gray-400 mb-3">
+            Get access to 100+ foods, AI photo recognition, batch cooking coordination, and advanced customization!
+          </p>
+          <button 
+            onClick={() => onPremiumFeatureClick('Premium Features', 'Unlock the full potential of Smart Food Timer with premium features.')}
+            className="w-full bg-accent-500 hover:bg-accent-600 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+          >
+            Learn More
+          </button>
+        </div>
+      )}
+
+      {/* Disclaimer Banner */}
+      <DisclaimerBanner
+        onViewDisclaimer={() => setShowDisclaimer(true)}
+        variant="compact"
+        className="mt-6 max-w-md w-full"
+      />
+
+      <DisclaimerModal
+        isOpen={showDisclaimer}
+        onClose={() => setShowDisclaimer(false)}
+      />
     </div>
   );
 };

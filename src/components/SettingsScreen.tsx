@@ -1,22 +1,44 @@
-import React from 'react';
-import { Moon, Sun, Volume2, VolumeX, Smartphone, Mic, MicOff } from 'lucide-react';
+import React, { useState } from 'react';
+import { Moon, Sun, Volume2, VolumeX, Smartphone, Mic, MicOff, AlertTriangle } from 'lucide-react';
 import { Navigation } from './Navigation';
 import { TemperatureToggle } from './TemperatureToggle';
+import { DisclaimerModal } from './DisclaimerModal';
 import { AppSettings } from '../types';
 
 interface SettingsScreenProps {
   settings: AppSettings;
   onBack: () => void;
   onUpdateSettings: (settings: Partial<AppSettings>) => void;
+  onAccount: () => void;
+  onPremiumBenefits: () => void;
 }
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   settings,
   onBack,
   onUpdateSettings,
+  onAccount,
+  onPremiumBenefits,
 }) => {
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+
   const handleToggle = (key: keyof AppSettings, value: any) => {
     onUpdateSettings({ [key]: value });
+  };
+
+  const handleResetOnboarding = () => {
+    onUpdateSettings({ hasSeenOnboarding: false });
+    alert('Onboarding reset! You\'ll see the tutorial on next app start.');
+  };
+
+  const handleClearData = () => {
+    if (confirm('Are you sure you want to clear all your cooking data? This cannot be undone.')) {
+      onUpdateSettings({ 
+        favoriteSettings: [],
+        hasSeenOnboarding: false 
+      });
+      alert('All data cleared successfully.');
+    }
   };
 
   return (
@@ -186,17 +208,57 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           )}
         </div>
 
-        {/* Data & Privacy */}
+        {/* Account & Premium */}
         <div className="bg-white rounded-2xl p-6 border border-primary-200 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <h3 className="font-semibold text-warm-800 mb-4">Account & Premium</h3>
+          
+          <div className="space-y-3">
+            <button 
+              onClick={onAccount}
+              className="w-full text-left p-3 hover:bg-primary-50 rounded-xl transition-colors"
+            >
+              <div className="font-medium text-warm-800">Account Settings</div>
+              <div className="text-sm text-warm-600">Manage your profile and subscription</div>
+            </button>
+            
+            <button 
+              onClick={onPremiumBenefits}
+              className="w-full text-left p-3 hover:bg-accent-50 rounded-xl transition-colors"
+            >
+              <div className="font-medium text-accent-600">Premium Benefits</div>
+              <div className="text-sm text-warm-600">Unlock advanced features and unlimited access</div>
+            </button>
+          </div>
+        </div>
+
+        {/* Data & Privacy */}
+        <div className="bg-white rounded-2xl p-6 border border-primary-200 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <h3 className="font-semibold text-warm-800 mb-4">Data & Privacy</h3>
           
           <div className="space-y-3">
-            <button className="w-full text-left p-3 hover:bg-primary-50 rounded-xl transition-colors">
+            <button 
+              onClick={() => setShowDisclaimer(true)}
+              className="w-full text-left p-3 hover:bg-red-50 rounded-xl transition-colors"
+            >
+              <div className="font-medium text-red-600 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                Food Safety Disclaimer
+              </div>
+              <div className="text-sm text-warm-600">Important safety information and app limitations</div>
+            </button>
+            
+            <button 
+              onClick={handleResetOnboarding}
+              className="w-full text-left p-3 hover:bg-primary-50 rounded-xl transition-colors"
+            >
               <div className="font-medium text-warm-800">Reset Onboarding</div>
               <div className="text-sm text-warm-600">Show intro tutorial again</div>
             </button>
             
-            <button className="w-full text-left p-3 hover:bg-red-50 rounded-xl transition-colors">
+            <button 
+              onClick={handleClearData}
+              className="w-full text-left p-3 hover:bg-red-50 rounded-xl transition-colors"
+            >
               <div className="font-medium text-red-600">Clear All Data</div>
               <div className="text-sm text-warm-600">Remove favorites and cooking history</div>
             </button>
@@ -204,16 +266,27 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </div>
 
         {/* App Info */}
-        <div className="bg-white rounded-2xl p-6 border border-primary-200 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <div className="bg-white rounded-2xl p-6 border border-primary-200 animate-fade-in" style={{ animationDelay: '0.5s' }}>
           <h3 className="font-semibold text-warm-800 mb-4">About</h3>
           
           <div className="space-y-2 text-sm text-warm-600">
             <div>Smart Food Timer v2.0</div>
             <div>Built with scientific cooking data</div>
             <div>USDA food safety compliant</div>
+            <button 
+              onClick={() => setShowDisclaimer(true)}
+              className="text-primary-600 hover:text-primary-700 font-medium"
+            >
+              View Disclaimer
+            </button>
           </div>
         </div>
       </div>
+
+      <DisclaimerModal
+        isOpen={showDisclaimer}
+        onClose={() => setShowDisclaimer(false)}
+      />
     </div>
   );
 };
