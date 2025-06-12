@@ -18,6 +18,31 @@
   .dark {
     color-scheme: dark;
   }
+
+  /* Accessibility enhancements */
+  .high-contrast {
+    --primary-500: #000000;
+    --primary-600: #000000;
+    --accent-500: #FFD700;
+    --accent-600: #FFD700;
+  }
+
+  .large-text {
+    font-size: 1.125rem;
+  }
+
+  .large-text h1 { font-size: 2.5rem; }
+  .large-text h2 { font-size: 2rem; }
+  .large-text h3 { font-size: 1.75rem; }
+  .large-text h4 { font-size: 1.5rem; }
+  .large-text .text-sm { font-size: 1rem; }
+  .large-text .text-xs { font-size: 0.875rem; }
+
+  .reduced-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer components {
@@ -58,6 +83,61 @@
 
   .screen-exit-back {
     animation: slideOutRight 0.3s ease-out forwards;
+  }
+
+  /* Premium feature indicators */
+  .premium-indicator {
+    @apply relative;
+  }
+
+  .premium-indicator::after {
+    content: '✨';
+    @apply absolute -top-1 -right-1 text-xs;
+  }
+
+  /* Multi-timer priority indicators */
+  .priority-high {
+    @apply border-l-4 border-red-500;
+  }
+
+  .priority-medium {
+    @apply border-l-4 border-amber-500;
+  }
+
+  .priority-low {
+    @apply border-l-4 border-green-500;
+  }
+
+  /* Voice command indicators */
+  .voice-active {
+    @apply animate-pulse ring-2 ring-blue-400;
+  }
+
+  /* Accessibility helpers */
+  .skip-link {
+    @apply absolute -top-10 left-0 bg-primary-600 text-white px-4 py-2 rounded focus:top-0 z-50;
+  }
+
+  /* Touch-friendly improvements */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* High contrast mode overrides */
+  .high-contrast .bg-primary-500 {
+    @apply bg-black;
+  }
+
+  .high-contrast .text-primary-600 {
+    @apply text-black;
+  }
+
+  .high-contrast .bg-accent-500 {
+    @apply bg-yellow-400;
+  }
+
+  .high-contrast .text-accent-600 {
+    @apply text-yellow-600;
   }
 }
 
@@ -178,6 +258,18 @@ textarea:focus-visible {
   }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animation classes */
 .animate-gentle-bounce {
   animation: gentle-bounce 2s ease-in-out infinite;
 }
@@ -220,6 +312,12 @@ textarea:focus-visible {
 
 .animate-safety-warning {
   animation: safety-warning-pulse 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 /* Waveform animation for voice control */
@@ -302,12 +400,6 @@ textarea:focus-visible {
   animation: gradient-shift 2s ease infinite;
 }
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
 /* Improved slider styles */
 .slider::-webkit-slider-thumb {
   appearance: none;
@@ -346,11 +438,6 @@ textarea:focus-visible {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 /* Enhanced accessibility */
@@ -441,4 +528,73 @@ textarea:focus-visible {
   transform: translateY(-50%);
   font-size: 1.2em;
   font-weight: bold;
+}
+
+/* Feedback form enhancements */
+.feedback-step {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Tooltip positioning */
+.tooltip-container {
+  position: relative;
+}
+
+.tooltip-content {
+  position: absolute;
+  z-index: 1000;
+  max-width: 300px;
+}
+
+/* Multi-timer coordination */
+.batch-timeline {
+  position: relative;
+}
+
+.batch-timeline::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #FF6B35, #F59E0B);
+}
+
+/* Servings converter */
+.servings-slider {
+  background: linear-gradient(to right, #10B981 0%, #F59E0B 50%, #EF4444 100%);
+}
+
+/* Voice command visualization */
+.voice-command-active {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  animation: voice-listening 2s ease-in-out infinite;
+}
+
+/* Premium feature highlights */
+.premium-glow {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  border: 2px solid rgba(245, 158, 11, 0.5);
+}
+
+/* Accessibility focus indicators */
+.focus-visible {
+  outline: 3px solid #FF6B35;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }

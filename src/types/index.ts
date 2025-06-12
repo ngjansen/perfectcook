@@ -62,6 +62,14 @@ export interface AppSettings {
   isPremium?: boolean;
   premiumExpiryDate?: number;
   theme?: 'default' | 'chef' | 'modern' | 'minimal';
+  // New accessibility settings
+  highContrast?: boolean;
+  largeText?: boolean;
+  reducedMotion?: boolean;
+  // New feature settings
+  showTooltips?: boolean;
+  autoSaveFavorites?: boolean;
+  smartNotifications?: boolean;
 }
 
 export interface FavoriteSetting {
@@ -73,16 +81,21 @@ export interface FavoriteSetting {
   thickness: number;
   startingTemp: 'cold' | 'room' | 'warm';
   createdAt: number;
+  usageCount?: number;
+  lastUsed?: number;
 }
 
 export interface MultiTimer {
   id: string;
-  foodName: string;
+  name: string;
   timeRemaining: number;
   totalTime: number;
   isRunning: boolean;
   isPaused: boolean;
   priority: 'high' | 'medium' | 'low';
+  color?: string;
+  foodId?: string;
+  textureId?: string;
 }
 
 export interface OnboardingStep {
@@ -120,6 +133,27 @@ export interface UserAccount {
   subscriptionPlan?: string;
   subscriptionExpiry?: number;
   joinDate: number;
+}
+
+export interface CookingStep {
+  id: string;
+  name: string;
+  duration: number;
+  startTime: number;
+  type: 'prep' | 'cook' | 'rest';
+  priority: 'high' | 'medium' | 'low';
+  instructions: string;
+  isCompleted: boolean;
+}
+
+export interface FeedbackData {
+  rating: number;
+  accuracy: 'perfect' | 'close' | 'off';
+  comments: string;
+  wouldRecommend: boolean;
+  timestamp: number;
+  foodId: string;
+  textureId: string;
 }
 
 export type Screen = 'welcome' | 'onboarding' | 'food-selection' | 'texture-selection' | 'cooking-details' | 'timer' | 'multi-timer' | 'success' | 'favorites' | 'settings' | 'premium-benefits' | 'upgrade-flow' | 'account' | 'billing' | 'support';

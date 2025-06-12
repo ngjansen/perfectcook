@@ -15,9 +15,11 @@ import { AccountScreen } from './components/AccountScreen';
 import { BillingScreen } from './components/BillingScreen';
 import { SupportScreen } from './components/SupportScreen';
 import { PremiumUpsellModal } from './components/PremiumUpsellModal';
+import { FeedbackPrompt } from './components/FeedbackPrompt';
+import { OnboardingTooltips } from './components/OnboardingTooltips';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useHapticFeedback } from './hooks/useHapticFeedback';
-import { Food, Texture, Screen, CookingSession, AppSettings, FavoriteSetting, MultiTimer } from './types';
+import { Food, Texture, Screen, CookingSession, AppSettings, FavoriteSetting, MultiTimer, FeedbackData } from './types';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome');
@@ -29,8 +31,11 @@ function App() {
   const [isNavigatingBack, setIsNavigatingBack] = useState(false);
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [upsellFeature, setUpsellFeature] = useState({ name: '', description: '' });
+  const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
+  const [showTooltips, setShowTooltips] = useState(false);
   
   const [cookingHistory, setCookingHistory] = useLocalStorage<CookingSession[]>('cooking-history', []);
+  const [feedbackData, setFeedbackData] = useLocalStorage<FeedbackData[]>('feedback-data', []);
   const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', {
     temperatureUnit: 'fahrenheit',
     darkMode: false,
@@ -42,6 +47,12 @@ function App() {
     isPremium: false,
     premiumExpiryDate: undefined,
     theme: 'default',
+    highContrast: false,
+    largeText: false,
+    reducedMotion: false,
+    showTooltips: true,
+    autoSaveFavorites: true,
+    smartNotifications: true,
   });
   const [multiTimers, setMultiTimers] = useLocalStorage<MultiTimer[]>('multi-timers', []);
 
@@ -59,14 +70,43 @@ function App() {
     }
   }, [settings.hasSeenOnboarding, currentScreen]);
 
-  // Apply dark mode
+  // Show tooltips for new users after onboarding
   useEffect(() => {
-    if (settings.darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (settings.hasSeenOnboarding && settings.showTooltips && currentScreen === 'welcome') {
+      setTimeout(() => {
+        setShowTooltips(true);
+      }, 2000);
     }
-  }, [settings.darkMode]);
+  }, [settings.hasSeenOnboarding, settings.showTooltips, currentScreen]);
+
+  // Apply accessibility settings
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    if (settings.darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    
+    if (settings.highContrast) {
+      root.classList.add('high-contrast');
+    } else {
+      root.classList.remove('high-contrast');
+    }
+    
+    if (settings.largeText) {
+      root.classList.add('large-text');
+    } else {
+      root.classList.remove('large-text');
+    }
+    
+    if (settings.reducedMotion) {
+      root.classList.add('reduced-motion');
+    } else {
+      root.classList.remove('reduced-motion');
+    }
+  }, [settings.darkMode, settings.highContrast, settings.largeText, settings.reducedMotion]);
 
   // Enhanced screen navigation with transitions
   const navigateToScreen = (newScreen: Screen, isBack: boolean = false) => {
@@ -98,6 +138,11 @@ function App() {
   const handleOnboardingSkip = () => {
     setSettings(prev => ({ ...prev, hasSeenOnboarding: true }));
     navigateToScreen('welcome');
+  };
+
+  const handleTooltipsComplete = () => {
+    setShowTooltips(false);
+    setSettings(prev => ({ ...prev, showTooltips: false }));
   };
 
   const handleStart = () => {
@@ -153,6 +198,36 @@ function App() {
     }
     
     navigateToScreen('success');
+    
+    // Show feedback prompt after a delay
+    setTimeout(() => {
+      setShowFeedbackPrompt(true);
+    }, 2000);
+  };
+
+  const handleFeedbackSubmit = (feedback: {
+    rating: number;
+    accuracy: 'perfect' | 'close' | 'off';
+    comments: string;
+    wouldRecommend: boolean;
+  }) => {
+    if (selectedFood && selectedTexture) {
+      const feedbackEntry: FeedbackData = {
+        ...feedback,
+        timestamp: Date.now(),
+        foodId: selectedFood.id,
+        textureId: selectedTexture.id,
+      };
+      
+      setFeedbackData(prev => [feedbackEntry, ...prev.slice(0, 49)]); // Keep last 50
+      
+      // Auto-save as favorite if rating is high and accuracy is good
+      if (feedback.rating >= 4 && feedback.accuracy === 'perfect' && settings.autoSaveFavorites) {
+        handleSaveFavorite(feedback.rating, feedback.comments);
+      }
+    }
+    
+    setShowFeedbackPrompt(false);
   };
 
   const handleSaveFavorite = (rating: number, feedback: string) => {
@@ -172,6 +247,8 @@ function App() {
         thickness: cookingDetails.thickness,
         startingTemp: cookingDetails.startingTemp,
         createdAt: Date.now(),
+        usageCount: 1,
+        lastUsed: Date.now(),
       };
       
       setSettings(prev => ({
@@ -182,8 +259,17 @@ function App() {
   };
 
   const handleUseFavorite = (favorite: FavoriteSetting) => {
-    // This would set up the cooking session with the favorite settings
-    // For now, just navigate to food selection
+    // Update usage statistics
+    setSettings(prev => ({
+      ...prev,
+      favoriteSettings: prev.favoriteSettings.map(f => 
+        f.id === favorite.id 
+          ? { ...f, usageCount: (f.usageCount || 0) + 1, lastUsed: Date.now() }
+          : f
+      )
+    }));
+    
+    // Navigate to food selection with pre-selected favorite
     navigateToScreen('food-selection');
   };
 
@@ -194,11 +280,43 @@ function App() {
     }));
   };
 
+  const handleAddToFavorites = (favorite: Omit<FavoriteSetting, 'id' | 'createdAt'>) => {
+    if (!settings.isPremium && settings.favoriteSettings.length >= 10) {
+      checkPremiumAccess('Unlimited Favorites', 'Save unlimited cooking combinations and never lose your perfect recipes.');
+      return;
+    }
+    
+    const newFavorite: FavoriteSetting = {
+      ...favorite,
+      id: Date.now().toString(),
+      createdAt: Date.now(),
+      usageCount: 0,
+    };
+    
+    setSettings(prev => ({
+      ...prev,
+      favoriteSettings: [newFavorite, ...prev.favoriteSettings]
+    }));
+  };
+
   const handleMultiTimer = () => {
     if (!checkPremiumAccess('Multi-Timer', 'Run unlimited timers simultaneously with priority management and batch cooking coordination.')) {
       return;
     }
     navigateToScreen('multi-timer');
+  };
+
+  const handleAddMultiTimer = (timer: Omit<MultiTimer, 'id'>) => {
+    const newTimer: MultiTimer = {
+      ...timer,
+      id: Date.now().toString(),
+    };
+    
+    setMultiTimers(prev => [...prev, newTimer]);
+  };
+
+  const handleUpdateMultiTimers = (timers: MultiTimer[]) => {
+    setMultiTimers(timers);
   };
 
   const handleRestart = () => {
@@ -355,10 +473,22 @@ function App() {
           <MultiTimerScreen
             timers={multiTimers}
             onBack={goBack}
-            onAddTimer={() => {/* Implementation needed */}}
-            onStartTimer={(id) => {/* Implementation needed */}}
-            onPauseTimer={(id) => {/* Implementation needed */}}
-            onDeleteTimer={(id) => {/* Implementation needed */}}
+            onAddTimer={handleAddMultiTimer}
+            onStartTimer={(id) => {
+              const updatedTimers = multiTimers.map(timer => 
+                timer.id === id ? { ...timer, isRunning: true, isPaused: false } : timer
+              );
+              setMultiTimers(updatedTimers);
+            }}
+            onPauseTimer={(id) => {
+              const updatedTimers = multiTimers.map(timer => 
+                timer.id === id ? { ...timer, isPaused: true } : timer
+              );
+              setMultiTimers(updatedTimers);
+            }}
+            onDeleteTimer={(id) => {
+              setMultiTimers(prev => prev.filter(timer => timer.id !== id));
+            }}
             isPremium={settings.isPremium}
           />
         )}
@@ -441,6 +571,24 @@ function App() {
         }}
         featureName={upsellFeature.name}
         featureDescription={upsellFeature.description}
+      />
+
+      {/* Feedback Prompt */}
+      {showFeedbackPrompt && selectedFood && selectedTexture && (
+        <FeedbackPrompt
+          isOpen={showFeedbackPrompt}
+          onClose={() => setShowFeedbackPrompt(false)}
+          onSubmit={handleFeedbackSubmit}
+          foodName={selectedFood.name}
+          textureName={selectedTexture.name}
+        />
+      )}
+
+      {/* Onboarding Tooltips */}
+      <OnboardingTooltips
+        isActive={showTooltips}
+        onComplete={handleTooltipsComplete}
+        onSkip={handleTooltipsComplete}
       />
     </div>
   );
